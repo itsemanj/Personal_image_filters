@@ -1,93 +1,252 @@
-# srh-image-viewer
+# SRH ImageViewer Capstone Project
 
+Welcome to the SRH ImageViewer project! The goal of this project is to collaboratively build an image processing application. Each student will contribute by creating a personal "module" that adds new image processing capabilities to the main application.
 
+This guide will walk you through setting up the project, creating your own module, and submitting your contribution.
 
-## Getting started
+## Project Timeline
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+-   **Project Start:** Now
+-   **Contribution Deadline:** All pull requests must be created and submitted by **Wednesday, 17th at midnight**.
+-   **Project Showcase:** Thursday 18th (Group 1), Friday 19th (Group 2)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 1. Project Setup
 
-## Add your files
+First, you need to get the project code running on your local machine.
 
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### 1.1. Clone the Repository
+
+Open your terminal or Git client and clone the project repository to your computer.
+
+```bash
+git clone https://gitlab.com/image-tech-group/srh-image-viewer.git
+cd srhimageviewer
+```
+
+### 1.2. Create a Virtual Environment
+
+(You can choose to install the project's dependencies in your global python environment. If that is the case, please skip to 1.3)
+
+It might be more adequate to use a virtual environment to manage project dependencies. This keeps your project's libraries separate from your system's Python installation.
+
+```bash
+# Create a virtual environment named 'venv'
+python -m venv venv
+
+# Activate the environment
+# On Windows:
+.\venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+```
+
+You will see `(venv)` at the beginning of your terminal prompt, indicating the environment is active.
+
+### 1.3. Install Dependencies
+
+Install all the necessary Python libraries using the `requirements.txt` file.
+
+```bash
+pip install -r requirements.txt
+```
+
+or
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+You should now be able to run the main application.
+
+```bash
+python main_app.py
+```
+
+## 2. Creating Your Module
+
+Your contribution will be a new "module". A module is a self-contained set of files that adds your custom functionality (ies) and user interface (UI) to the main application.
+
+### 2.1. Create Your Module Directory and File
+
+1.  Navigate to the `modules/` directory.
+2.  Create a new folder with your name (e.g., `john_doe`).
+3.  Inside your new folder, create a Python file. This file name should contain your module's name (e.g. `john_doe`), plus the suffix `_module`. For example `john_doe_module.py`.
+
+Your project structure should look like this:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/image-tech-group/srh-image-viewer.git
-git branch -M main
-git push -uf origin main
+srhimageviewer_test/
+├── modules/
+│   ├── sample/
+│   │   └── sample_module.py
+│   ├── john_doe/
+│   │   └── john_doe_module.py  <-- Your new file
+│   └── i_image_module.py
+├── main.py
+└── requirements.txt
 ```
 
-## Integrate with your tools
+### 2.2. Use the Template
 
-* [Set up project integrations](https://gitlab.com/image-tech-group/srh-image-viewer/-/settings/integrations)
+To get started quickly, copy the contents of an existing module like `modules/sample/sample_module.py` into your new `john_doe_module.py` file. You will then modify this template for your own transformation. Whereever the word `Sample` appears in your new file, you can replace it with your module's name (`e.g. JohnDoe`)
 
-## Collaborate with your team
+## 3. Adding a Custom Transformation
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Let's add a "Contrast Stretching" transformation. This is a simple point operation that enhances the contrast of an image by stretching the range of intensity values. It's a great example because it requires user-defined parameters.
 
-## Test and Deploy
+### 3.1. Step 1: Create the UI for Parameters
 
-Use the built-in continuous integration in GitLab.
+First, we need to create the UI widgets that will allow the user to input the parameters for our transformation. In your module file (`john_doe_module.py`), find the section with parameter widgets and add a new class for contrast stretching.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+This widget will have two spin boxes for the user to select the desired minimum and maximum output intensity values.
 
-***
+```python
+# In your_module.py, add this class near the other *ParamsWidget classes
 
-# Editing this README
+class ContrastStretchingParamsWidget(BaseParamsWidget):
+    """A widget for Contrast Stretching parameters."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+        # Input for the new minimum value
+        layout.addWidget(QLabel("New Minimum Intensity (0-255):"))
+        self.min_spinbox = QDoubleSpinBox()
+        self.min_spinbox.setMinimum(0.0)
+        self.min_spinbox.setMaximum(255.0)
+        self.min_spinbox.setValue(0.0)
+        layout.addWidget(self.min_spinbox)
 
-## Suggestions for a good README
+        # Input for the new maximum value
+        layout.addWidget(QLabel("New Maximum Intensity (0-255):"))
+        self.max_spinbox = QDoubleSpinBox()
+        self.max_spinbox.setMinimum(0.0)
+        self.max_spinbox.setMaximum(255.0)
+        self.max_spinbox.setValue(255.0)
+        layout.addWidget(self.max_spinbox)
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+        layout.addStretch()
 
-## Name
-Choose a self-explaining name for your project.
+    def get_params(self) -> dict:
+        return {
+            'new_min': self.min_spinbox.value(),
+            'new_max': self.max_spinbox.value()
+        }
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### 3.2. Step 2: Add the Operation to the Control Panel
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Now, connect your new parameter widget to the dropdown menu in your module's control panel.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+In your `YourNameControlsWidget` class (e.g., `JohnDoeControlsWidget`), find the `operations` dictionary and add an entry for "Contrast Stretching" (You can remove all transformations that you do not wish to implement).
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```python
+# In your YourNameControlsWidget class, inside the setup_ui method
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+        # ...
+        # Define operations and their corresponding parameter widgets
+        operations = {
+            "Gaussian Blur": GaussianParamsWidget,
+            "Sobel Edge Detect": NoParamsWidget,
+            "Power Law (Gamma)": PowerLawParamsWidget,
+            "Convolution": ConvolutionParamsWidget,
+            "Contrast Stretching": ContrastStretchingParamsWidget, # <-- Add this line
+        }
+        # ...
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### 3.3. Step 3: Implement the Image Processing Logic
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+This is where you write the core NumPy code for the transformation. In your main module class (e.g., `JohnDoeImageModule`), find the `process_image` method and add the logic for your new operation. You can choose to implement this logic in a separate function and just call the function in the `process_image` method.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+The logic is as follows:
+1.  Get the current minimum and maximum intensity of the input image.
+2.  Get the desired new minimum and maximum from the user parameters.
+3.  Apply the linear scaling formula to each pixel.
+4.  Ensure the output data type is the same as the input.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```python
+# In your YourNameImageModule class, inside the process_image method
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+    def process_image(self, image_data: np.ndarray, metadata: dict, params: dict) -> np.ndarray:
+        processed_data = image_data.copy()
+        operation = params.get('operation')
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+        # ... (keep the other elif blocks for other operations)
 
-## License
-For open source projects, say how it is licensed.
+        elif operation == "Contrast Stretching":
+            # Ensure we are working with a floating point image for calculations
+            img_float = processed_data.astype(float)
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+            # Get parameters from the UI
+            new_min = params.get('new_min', 0.0)
+            new_max = params.get('new_max', 255.0)
+
+            # Get current image intensity range
+            current_min = np.min(img_float)
+            current_max = np.max(img_float)
+
+            # Avoid division by zero if the image is flat
+            if current_max == current_min:
+                return processed_data # Return original image
+
+            # Apply the linear stretching formula
+            processed_data = (img_float - current_min) * \
+                             ((new_max - new_min) / (current_max - current_min)) + new_min
+
+            # Clip values to be safe, though the formula should handle it
+            processed_data = np.clip(processed_data, new_min, new_max)
+
+        # ... (keep the rest of the function)
+
+        # Ensure output data type is consistent
+        processed_data = processed_data.astype(image_data.dtype)
+
+        return processed_data
+```
+
+Now, run the application. You should see your module in the module selection dropdown, and "Contrast Stretching" should appear in its operations list!
+
+## 4. Submitting Your Contribution
+
+Once you have tested and are happy with all functionalities implementations in your module, it's time to submit it for review (latest 17th for Group 1 and 18th for Group 2).
+
+### 4.1. Use Git for Version Control
+
+1.  **Create a new branch** for your feature. This keeps your work separate from the main codebase.
+
+    ```bash
+    # Make sure you are on the main branch and have the latest changes
+    git checkout main
+    git pull
+
+    # Create and switch to a new branch
+    git checkout -b feature/john-doe
+    ```
+
+2.  **Commit your changes.** Add the files you've changed and create a commit with a descriptive message.
+
+    ```bash
+    # Add your new module file
+    git add modules/john_doe/john_doe_module.py
+
+    # Commit the changes
+    git commit -m "feat: Add John Doe module"
+    ```
+
+3.  **Push your branch** to the remote repository.
+
+    ```bash
+    git push -u origin feature/john-doe
+    ```
+
+### 4.2. Create a Pull Request
+
+1.  Go to the project's repository page on GitLab.
+2.  You should see a prompt to "Compare & pull request" for your new branch. Click it.
+3.  Give your pull request a clear title (e.g., "John Doe's Module").
+4.  In the description, briefly explain what you added and how to test it.
+5.  Click "Create pull request".
+
+Your pull request will be reviewed and, once approved, merged into the main project. Congratulations, you've successfully contributed!
