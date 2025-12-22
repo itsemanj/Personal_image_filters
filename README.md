@@ -250,4 +250,4 @@ After executing the last command, follow the link and instructions on your termi
 3.  In the description, briefly explain what you added and how to test it.
 4.  Click "Create merge request".
 
-Your merge request will be reviewed and, once approved, merged into the main project. Congratulations, you've successfully contributed and submitted your work to be graded ! See you the next for presentations !
+Your merge request will be reviewed and, once approved, merged into the main project. Congratulations, you've successfully contributed and submitted your work to be graded ! See you the next for presentations !# image_filters
